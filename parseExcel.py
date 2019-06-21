@@ -18,18 +18,35 @@ def read_excel():
     sheet1=wb.sheet_by_index(0)
     # get header
     header_row=sheet1.row_values(5)
-    create_table(header_row)
+    create_table(header_row,'product')
 
 def create_table(header_row,table_name=None):
     types=col_type(header_row)
     create_table_sql='CREATE TABLE \'{name}\' (\n'.format(name=table_name)
-    for cell in header_row:
-        #print(normalize_name(cell))
-        print(cell)
+    for index,cell in header_row:
+        if index==1:
+            create_table_sql+='\'id\' int(11) NOT NULL AUTO_INCREMENT,\n'
+            continue
+        create_table_sql+='\'{name}\''.formate(name=normalize_name(cell))+sql_type_seg(types[index])
+
+    create_table_sql+=') ENGINE=InnoDB AUTO_INCREMENT=110 DEFAULT CHARSET=utf8;'
 
 
 def normalize_name(name):
     return re.sub(r'\s+','_',name.lower())
+
+def sql_type_seg(type):
+    str=''
+    if ColType.STR==type:
+        str=' varchar(100) DEFAULT NULL,\n'
+    elif ColType.INT==type:
+        str=' int(11) DEFAULT NULL,\n'
+    elif ColType.DATE==type:
+        str=' DATETIME DEFAULT NULL,\n'
+    elif ColType.FLOA==type:
+        str=' decimal(10,2) NULL,\n'
+    return str
+
 
 def col_type(header_row):
     def_col='str'
@@ -42,13 +59,13 @@ def col_type(header_row):
     types=[]
     for cell in header_row:
         if cell in int_cols:
-            types.append(ColType.INT.name)
+            types.append(ColType.INT)
         elif cell in float_cols:
-            types.append(ColType.FLOA.name)
+            types.append(ColType.FLOA)
         elif cell in date_cols:
-            types.append(ColType.DATE.name)
+            types.append(ColType.DATE)
         else:
-            types.append(ColType.STR.name)
+            types.append(ColType.STR)
     return types
 
 read_excel()
