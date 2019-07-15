@@ -12,6 +12,7 @@ class ColType(Enum):
 
 file='C:/doc/updated product database based on categories May 2019 v2.xlsx'
 output_table='c:/doc/product_beta.txt'
+output_rows='c:/doc/product_beta_rows.txt'
 
 def excel2Table():
     wb=xlrd.open_workbook(filename=file)
@@ -19,7 +20,8 @@ def excel2Table():
     sheet1=wb.sheet_by_index(2)
     # get header
     header_row=sheet1.row_values(1)[:78]
-    create_table(header_row,'product_beta')
+    # create_table(header_row,'product_beta')
+    create_rows(header_row,sheet1)
 
 def create_table(header_row,table_name=None):
     types=col_type(header_row)
@@ -29,10 +31,40 @@ def create_table(header_row,table_name=None):
             create_table_sql+='`id` int(11) NOT NULL AUTO_INCREMENT,\n'
             continue
         create_table_sql+='`{name}`'.format(name=normalize_name(name_mapping(cell)))+sql_type_seg(types[index])
-   
     create_table_sql+='PRIMARY KEY (`id`)\n) ENGINE=InnoDB AUTO_INCREMENT=110 DEFAULT CHARSET=utf8;'
     with open(output_table, 'wt') as f:
          f.write(create_table_sql)
+
+def create_rows(header_row,sheet):
+    types=col_type(header_row)
+    output=''
+    insert='INSERT INTO `product_beta`('
+    for index,cell in enumerate(header_row):
+        if index==0:
+            continue
+        insert+='`{name}`,'.format(name=normalize_name(name_mapping(cell)))
+    insert=insert[:len(insert)-1]+') VALUES('
+    i=2
+    while i<=62:
+        row=sheet.row_values(i)[:78]
+        values=''
+        for index,cell in enumerate(row):
+            if index==0:
+                continue
+            if types[index]==ColType.STR or types[index]==ColType.LONGSTR:
+                values+='\'{name}\','.format(name=sanitize_value(cell))
+            else:
+                if cell is None:
+                    cell='null'
+                values+='{name},'.format(name=cell)
+        output+=insert+values[:len(values)-1]+');\n'
+        i+=1
+    with open(output_rows, 'wt') as f:
+         f.write(output)
+
+
+def sanitize_value(val):
+      return re.sub(r'\'','\\\'',val)
 
 def name_mapping(name):
     dic={'Unit Pack Size (ml/g)':'Unit Pack Size'}
