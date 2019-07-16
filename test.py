@@ -6,6 +6,7 @@ now = datetime.datetime.now()
 
 a={'a':'b'}
 
-s='asdfasdfasdfadsfasdf1'
-print(len(s))
-print(s[:len(s)-1])
+s='asdfa{name}sdfasdfadsfasdf1{name}'.format(name=123)
+# print(len(s))
+# print(s[:len(s)-1])
+print(s)
