@@ -22,7 +22,7 @@ def excel2Table():
     sheet1=wb.sheet_by_index(2)
     # get header
     header_row=sheet1.row_values(1)[:78]
-    # create_table(header_row,'product_beta')
+    create_table(header_row,'product_beta')
     create_rows(header_row,sheet1)
     generate_ingredient(sheet1)
 
@@ -34,7 +34,7 @@ def create_table(header_row,table_name=None):
             create_table_sql+='`id` int(11) NOT NULL AUTO_INCREMENT,\n'
             continue
         create_table_sql+='`{name}`'.format(name=normalize_name(name_mapping(cell)))+sql_type_seg(types[index])
-    create_table_sql+='PRIMARY KEY (`id`)\n) ENGINE=InnoDB AUTO_INCREMENT=110 DEFAULT CHARSET=utf8;'
+    create_table_sql+='`ingredient_id` int(11) DEFAULT NULL\n,PRIMARY KEY (`id`)\n) ENGINE=InnoDB AUTO_INCREMENT=110 DEFAULT CHARSET=utf8;'
     with open(output_table, 'wt') as f:
          f.write(create_table_sql)
 
@@ -69,7 +69,7 @@ def create_rows(header_row,sheet):
         if index==0:
             continue
         insert+='`{name}`,'.format(name=normalize_name(name_mapping(cell)))
-    insert=insert[:len(insert)-1]+') VALUES('
+    insert+='ingredient_id) SELECT '
     i=2
     while i<=62:
         row=sheet.row_values(i)[:78]
@@ -83,7 +83,7 @@ def create_rows(header_row,sheet):
                 if cell is None:
                     cell='null'
                 values+='{name},'.format(name=cell)
-        output+=insert+values[:len(values)-1]+');\n'
+        output+=insert+values+'`ID` FROM ingredient_beta WHERE `name`=\'{name}\';\n'.format(name=sheet.row_values(i)[82])
         i+=1
     with open(output_rows, 'wt') as f:
          f.write(output)
