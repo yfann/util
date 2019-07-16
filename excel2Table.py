@@ -13,6 +13,8 @@ class ColType(Enum):
 file='C:/doc/updated product database based on categories May 2019 v2.xlsx'
 output_table='c:/doc/product_beta.txt'
 output_rows='c:/doc/product_beta_rows.txt'
+ingredient_rows='c:/doc/ingredient_rows.txt'
+ingredient_dict=dict()
 
 def excel2Table():
     wb=xlrd.open_workbook(filename=file)
@@ -22,6 +24,7 @@ def excel2Table():
     header_row=sheet1.row_values(1)[:78]
     # create_table(header_row,'product_beta')
     create_rows(header_row,sheet1)
+    generate_ingredient(sheet1)
 
 def create_table(header_row,table_name=None):
     types=col_type(header_row)
@@ -34,6 +37,29 @@ def create_table(header_row,table_name=None):
     create_table_sql+='PRIMARY KEY (`id`)\n) ENGINE=InnoDB AUTO_INCREMENT=110 DEFAULT CHARSET=utf8;'
     with open(output_table, 'wt') as f:
          f.write(create_table_sql)
+
+def generate_ingredient(sheet):
+    insert='INSERT INTO `ingredient_beta`(`name`,`explanation`) VALUES('
+    i=2
+    output=''
+    while i<=62:
+        row=sheet.row_values(i)[82:84]
+        values=''
+        if not duplicate_checking(row[0]):
+            output+=insert+'\'{val1}\',\'{val2}\''.format(val1=sanitize_value(row[0]),val2=sanitize_value(row[1]))+');\n'
+        i+=1
+    with open(ingredient_rows, 'wt') as f:
+        f.write(output)
+
+def duplicate_checking(name):
+    if name in ingredient_dict:
+        return True
+    else:
+        ingredient_dict[name]=''
+        return False
+
+    
+
 
 def create_rows(header_row,sheet):
     types=col_type(header_row)
