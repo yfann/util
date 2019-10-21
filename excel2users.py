@@ -12,6 +12,7 @@ class ColType(Enum):
 
 file='C:/doc/User names for user tests.xlsx'
 del_user='c:/doc/del_user.txt'
+debug_user='c:/doc/debug_user.txt'
 internal_user='c:/doc/internal_user.txt'
 salon_user='c:/doc/salon_user.txt'
 pebble_user='c:/doc/pebble_user.txt'
@@ -65,5 +66,21 @@ def delete_users_sql(name):
     del_users="DELETE FROM `user_authentication` WHERE identify=\'{name}\';\n".format(name=name)
     return del_up+del_g+del_users
 
-read_excel()
+
+def create_debug_user_sql(name):
+    create_user="INSERT INTO `user_authentication` (`type`, `identify`, `credential`, `is_main`, `is_test`,`is_debug`) VALUES (\'NORMAL\', \'{name}\', \'1\', 0, 0,1);\n".format(name=name)
+    create_up="INSERT INTO `user_profile` (`id`, `username`, `email`, `avatar`, `phone`, `create_date`, `role_id`, `gender`, `province`, `city`, `country`, `last_login_time`, `is_new`, `is_deleted`) SELECT id, \'{name}\', \'\', NULL, NULL, \'{date}\', 0, 0, NULL, NULL, NULL, NULL, 1, 0 FROM `user_authentication` WHERE `identify`=\'{name}\';\n".format(name=name,date=datetime.datetime.now())
+    create_ug="INSERT INTO `user_goal` (`user_id`, `goal_id`, `is_current`, `create_date`) SELECT id, 1, 0, \'{date}\' FROM `user_authentication` WHERE `identify`=\'{name}\';\n".format(name=name,date=datetime.datetime.now())  
+    return create_user+create_up+create_ug
+
+def create_debug_user():
+    sql=''
+    for num in range(0,10):
+        sql=sql+create_debug_user_sql('debug'+str(num))
+        # sql+=delete_users_sql('debug'+str(num))
+    with open(debug_user, 'wt') as f:
+        f.write(sql)
+
+create_debug_user()
+# read_excel()
 print('finished!')

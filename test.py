@@ -15,5 +15,6 @@ s='{{asdfa{name}sdfasdfadsfasdf1{name}}}'.format(name=123)
 # print(now.strftime("%Y-%m-%d"))
 
 # print(type(datetime.datetime.strptime('2012-01-31', "%Y-%m-%d").date()))
-for i in range(1,10):
-    print(i)
+# for i in range(1,10):
+#     print(i)
+print('asdf'+1)
