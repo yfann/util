@@ -8,6 +8,7 @@ now = datetime.datetime.now()
 a={'a':'b'}
 
 s='{{asdfa{name}sdfasdfadsfasdf1{name}}}'.format(name=123)
+print(s)
 # print(len(s))
 # print(s[:len(s)-1])
 # print(s)
@@ -23,6 +24,6 @@ s='{{asdfa{name}sdfasdfadsfasdf1{name}}}'.format(name=123)
 
 # print(s[:-1])
 
-v='34'
+# v='34'
 
-print(v.isdigit())
+# print(v.isdigit())
